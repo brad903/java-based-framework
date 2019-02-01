@@ -16,8 +16,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public abstract class SelectJdbcTemplate {
     private static final Logger log = getLogger(SelectJdbcTemplate.class);
 
-    List<User> query() throws SQLException {
-        String sql = createQuery();
+    List<User> query(String sql) throws SQLException {
         List<User> users = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -29,8 +28,7 @@ public abstract class SelectJdbcTemplate {
         return users;
     }
 
-    Object queryForObject() throws SQLException {
-        String sql = createQuery();
+    Object queryForObject(String sql) throws SQLException {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt);
 
@@ -44,8 +42,6 @@ public abstract class SelectJdbcTemplate {
             return object;
         }
     }
-
-    abstract String createQuery();
 
     abstract Object mapRow(ResultSet rs) throws SQLException;
 

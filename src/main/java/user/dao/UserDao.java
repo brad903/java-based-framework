@@ -17,12 +17,8 @@ public class UserDao {
     private static final Logger log = getLogger(UserDao.class);
 
     public void insert(User user) throws SQLException {
+        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
         new JdbcTemplate() {
-            @Override
-            String createQuery() {
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
-
             @Override
             void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
@@ -31,16 +27,12 @@ public class UserDao {
                 pstmt.setString(4, user.getEmail());
                 pstmt.executeUpdate();
             }
-        }.execute();
+        }.execute(sql);
     }
 
     public void update(User user) throws SQLException {
+        String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
         new JdbcTemplate() {
-            @Override
-            String createQuery() {
-                return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-            }
-
             @Override
             void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
@@ -49,16 +41,12 @@ public class UserDao {
                 pstmt.setString(4, user.getUserId());
                 pstmt.executeUpdate();
             }
-        }.execute();
+        }.execute(sql);
     }
 
     public List<User> findAll() throws SQLException {
+        String sql = "SELECT * FROM USERS";
         return new SelectJdbcTemplate() {
-            @Override
-            String createQuery() {
-                return "SELECT * FROM USERS";
-            }
-
             @Override
             Object mapRow(ResultSet rs) throws SQLException {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
@@ -68,16 +56,12 @@ public class UserDao {
             void setValues(PreparedStatement pstmt) throws SQLException {
             }
 
-        }.query();
+        }.query(sql);
     }
 
     public User findByUserId(String userId) throws SQLException {
+        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
         return (User) new SelectJdbcTemplate() {
-            @Override
-            String createQuery() {
-                return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-            }
-
             @Override
             Object mapRow(ResultSet rs) throws SQLException {
                 return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
@@ -87,7 +71,7 @@ public class UserDao {
             void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, userId);
             }
-        }.queryForObject();
+        }.queryForObject(sql);
     }
 }
 

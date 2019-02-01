@@ -8,14 +8,11 @@ import java.sql.SQLException;
 
 public abstract class JdbcTemplate {
 
-    public void execute() throws SQLException {
-        String sql = createQuery();
+    public void execute(String sql) throws SQLException {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setValues(pstmt);
         }
     }
 
     abstract void setValues(PreparedStatement pstmt) throws SQLException;
-
-    abstract String createQuery();
 }
