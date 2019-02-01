@@ -35,7 +35,7 @@ public class UserDao {
             pstmt.executeUpdate();
         };
 
-        new JdbcTemplate().update(sql, pstmtSetter);
+        new JdbcTemplate().update(sql, user.getPassword(), user.getName(), user.getEmail(), user.getUserId());
     }
 
     public List<User> findAll() throws SQLException {

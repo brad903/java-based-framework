@@ -13,4 +13,19 @@ public class JdbcTemplate {
             pstmtSetter.setValues(pstmt);
         }
     }
+
+    public void update(String sql, Object...objects) throws SQLException {
+        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            createPreparedStatementSetter(objects).setValues(pstmt);
+        }
+    }
+
+    private PreparedStatementSetter createPreparedStatementSetter(Object[] objects) {
+        return pstmt -> {
+            for (int i = 0; i < objects.length; i++) {
+                pstmt.setObject(i + 1, objects[i]);
+            }
+            pstmt.executeUpdate();
+        };
+    }
 }
