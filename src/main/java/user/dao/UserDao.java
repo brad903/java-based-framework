@@ -1,8 +1,6 @@
 package user.dao;
 
 import core.jdbc.ConnectionManager;
-import core.jdbc.KeyHolder;
-import core.jdbc.PreparedStatementCreator;
 import org.slf4j.Logger;
 import user.domain.User;
 
@@ -19,26 +17,42 @@ public class UserDao {
     private static final Logger log = getLogger(UserDao.class);
 
     public void insert(User user) throws SQLException {
-        String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+        String sql = createQueryForInsert();
 
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-            pstmt.executeUpdate();
+            setValuesForInsert(user, pstmt);
         }
     }
 
+    private String createQueryForInsert() {
+        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+    }
+
     public void update(User user) throws SQLException {
-        String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+        String sql = createQueryForUpdate();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-            pstmt.executeUpdate();
+            setValuesForUpdate(user, pstmt);
         }
+    }
+
+    private String createQueryForUpdate() {
+        return "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
+    }
+
+    private void setValuesForInsert(User user, PreparedStatement pstmt) throws SQLException {
+        pstmt.setString(1, user.getUserId());
+        pstmt.setString(2, user.getPassword());
+        pstmt.setString(3, user.getName());
+        pstmt.setString(4, user.getEmail());
+        pstmt.executeUpdate();
+    }
+
+    private void setValuesForUpdate(User user, PreparedStatement pstmt) throws SQLException {
+        pstmt.setString(1, user.getPassword());
+        pstmt.setString(2, user.getName());
+        pstmt.setString(3, user.getEmail());
+        pstmt.setString(4, user.getUserId());
+        pstmt.executeUpdate();
     }
 
     public List<User> findAll() throws SQLException {
