@@ -53,34 +53,41 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM USERS";
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            try(ResultSet rs = pstmt.executeQuery()) {
-                if(rs.next()) {
-                    User user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
-                    users.add(user);
-                    log.debug("user : {}", user);
-                }
+        return new SelectJdbcTemplate() {
+            @Override
+            String createQuery() {
+                return "SELECT * FROM USERS";
             }
-        }
-        return users;
+
+            @Override
+            Object mapRow(ResultSet rs) throws SQLException {
+                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
+            }
+
+            @Override
+            void setValues(PreparedStatement pstmt) throws SQLException {
+            }
+
+        }.query();
     }
 
     public User findByUserId(String userId) throws SQLException {
-        String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, userId);
-
-            User user = null;
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
-                }
+        return (User) new SelectJdbcTemplate() {
+            @Override
+            String createQuery() {
+                return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
             }
 
-            return user;
-        }
+            @Override
+            Object mapRow(ResultSet rs) throws SQLException {
+                return new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"), rs.getString("email"));
+            }
+
+            @Override
+            void setValues(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, userId);
+            }
+        }.queryForObject();
     }
 }
 
