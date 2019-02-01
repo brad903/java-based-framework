@@ -24,14 +24,14 @@ public class UserDao {
             }
 
             @Override
-            void setValues(User user, PreparedStatement pstmt) throws SQLException {
+            void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
                 pstmt.setString(4, user.getEmail());
                 pstmt.executeUpdate();
             }
-        }.execute(user);
+        }.execute();
     }
 
     public void update(User user) throws SQLException {
@@ -42,14 +42,14 @@ public class UserDao {
             }
 
             @Override
-            void setValues(User user, PreparedStatement pstmt) throws SQLException {
+            void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getPassword());
                 pstmt.setString(2, user.getName());
                 pstmt.setString(3, user.getEmail());
                 pstmt.setString(4, user.getUserId());
                 pstmt.executeUpdate();
             }
-        }.execute(user);
+        }.execute();
     }
 
     public List<User> findAll() throws SQLException {
