@@ -6,13 +6,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
 
-    public void execute(String sql) throws SQLException {
+    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setValues(pstmt);
+            pstmtSetter.setValues(pstmt);
         }
     }
-
-    abstract void setValues(PreparedStatement pstmt) throws SQLException;
 }

@@ -1,14 +1,11 @@
 package user.dao;
 
-import core.jdbc.ConnectionManager;
 import org.slf4j.Logger;
 import user.domain.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,30 +15,27 @@ public class UserDao {
 
     public void insert(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-        new JdbcTemplate() {
-            @Override
-            void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getUserId());
-                pstmt.setString(2, user.getPassword());
-                pstmt.setString(3, user.getName());
-                pstmt.setString(4, user.getEmail());
-                pstmt.executeUpdate();
-            }
-        }.execute(sql);
+        PreparedStatementSetter pstmtSetter = pstmt -> {
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getName());
+            pstmt.setString(4, user.getEmail());
+            pstmt.executeUpdate();
+        };
+        new JdbcTemplate().update(sql, pstmtSetter);
     }
 
     public void update(User user) throws SQLException {
         String sql = "UPDATE USERS SET password = ?, name = ?, email = ? WHERE userId = ?";
-        new JdbcTemplate() {
-            @Override
-            void setValues(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, user.getPassword());
-                pstmt.setString(2, user.getName());
-                pstmt.setString(3, user.getEmail());
-                pstmt.setString(4, user.getUserId());
-                pstmt.executeUpdate();
-            }
-        }.execute(sql);
+        PreparedStatementSetter pstmtSetter = pstmt -> {
+            pstmt.setString(1, user.getPassword());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getUserId());
+            pstmt.executeUpdate();
+        };
+
+        new JdbcTemplate().update(sql, pstmtSetter);
     }
 
     public List<User> findAll() throws SQLException {
