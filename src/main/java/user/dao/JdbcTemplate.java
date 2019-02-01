@@ -16,9 +16,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class JdbcTemplate {
     private static final Logger log = getLogger(JdbcTemplate.class);
 
-    public void update(String sql, PreparedStatementSetter pstmtSetter) throws SQLException {
+    public void update(String sql, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
+        } catch (SQLException e) {
+            throw new DataAccessException();
         }
     }
 
@@ -28,7 +30,7 @@ public class JdbcTemplate {
         }
     }
 
-    <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) throws SQLException {
+    <T> T queryForObject(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             T object = null;
@@ -38,10 +40,12 @@ public class JdbcTemplate {
                 }
             }
             return object;
+        } catch (SQLException e) {
+            throw new DataAccessException();
         }
     }
 
-    <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object ...objects) throws SQLException {
+    <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... objects) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             createPreparedStatementSetter(objects).setValues(pstmt);
             T object = null;
@@ -51,26 +55,32 @@ public class JdbcTemplate {
                 }
             }
             return object;
+        } catch (SQLException e) {
+            throw new DataAccessException();
         }
     }
 
-    <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) throws SQLException {
+    <T> List<T> query(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtSetter) {
         List<T> users = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtSetter.setValues(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) users.add(rowMapper.mapRow(rs));
             }
+        } catch (SQLException e) {
+            throw new DataAccessException();
         }
         return users;
     }
 
-    <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) throws SQLException {
+    <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... objects) {
         List<T> users = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) users.add(rowMapper.mapRow(rs));
             }
+        } catch (SQLException e) {
+            throw new DataAccessException();
         }
         return users;
     }
